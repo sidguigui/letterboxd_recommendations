@@ -1,94 +1,72 @@
-# Imports
 import pandas as pd
-from sqlalchemy import create_engine, MetaData, Table, text
-from sqlalchemy.exc import SQLAlchemyError
-import os
-import logging
 import psycopg2
+import psycopg2.extras as extras
 from psycopg2 import sql
+import logging
 import numpy as np
+import os
 
 # Set up logging
 logging.basicConfig(level=logging.ERROR)
 
-# Database connection parameters
-db_user = os.getenv("DB_USER")
-db_host = os.getenv("DB_HOST")
-db_pswd = os.getenv("DB_PASSWORD")
-db_name = os.getenv("DB_NAME")
-
+# Direct database connection parameters
 config = {
-    'dbname': db_name,
-    'user': db_user,
-    'password': db_pswd,
-    'host': db_host
+    'dbname': os.getenv("DB_NAME"),
+    'user': os.getenv("DB_USER"),
+    'password': os.getenv("DB_PASSWORD"),
+    'host': os.getenv("DB_HOST")
 }
 
-
-print(config)
-
-
-# Define database connection URL
-db_url = f'postgresql+psycopg2://{db_user}:{db_pswd}@{db_host}/{db_name}'
-
-# Create SQLAlchemy engine
-engine = create_engine(db_url)
-
-# Function to execute queries
-def ExecuteQuery(query):
-    try:
-        with engine.connect() as connection:
-            result = connection.execute(text(query))
-        return result
-    except SQLAlchemyError as e:
-        logging.error(f"An error occurred while executing the query: {e}")
-        return None
-
 # Function to return DataFrame from query
-def ReturningDF(query):
+def ReturningDF(query: str) -> pd.DataFrame:
     try:
-        with engine.connect() as connection:
-            result = connection.execute(text(query))
-            df = pd.DataFrame(result.fetchall(), columns=result.keys())
+        with psycopg2.connect(**config) as conn:
+            df = pd.read_sql(query, conn)
         return df
-    except SQLAlchemyError as e:
+    except Exception as e:
         logging.error(f"An error occurred: {e}")
-        return None
+        return pd.DataFrame()
 
 # Function to enter data into a table
-def EnteringTable(table_name, df_enter):
+def EnteringTable(table_name: str, df_enter: pd.DataFrame) -> None:
     try:
-        # Reflect existing table structure
-        metadata = MetaData()
-        metadata.reflect(bind=engine)
-        table = Table(table_name, metadata, autoload_with=engine)
+        with psycopg2.connect(**config) as conn:
+            with conn.cursor() as cur:
+                # Check if columns exist and add them if necessary
+                cur.execute(sql.SQL("SELECT column_name FROM information_schema.columns WHERE table_name = %s"), [table_name])
+                existing_columns = [row[0] for row in cur.fetchall()]
 
-        # Check if columns exist and add them if necessary
-        with engine.connect() as connection:
-            for column in df_enter.columns:
-                if column not in table.columns:
-                    column_type = 'VARCHAR'  # Set the appropriate data type
-                    connection.execute(text(f'ALTER TABLE {table_name} ADD COLUMN {column} {column_type};'))
-                    logging.info(f'Column "{column}" added to {table_name} table.')
+                for column in df_enter.columns:
+                    if column not in existing_columns:
+                        column_type = 'VARCHAR'  # Adjust this to handle different data types dynamically if needed
+                        cur.execute(sql.SQL("ALTER TABLE {} ADD COLUMN {} {}").format(
+                            sql.Identifier(table_name),
+                            sql.Identifier(column),
+                            sql.SQL(column_type)
+                        ))
+                        logging.info(f'Column "{column}" added to {table_name} table.')
 
-        # Insert data into the table
-        df_enter.to_sql(table_name, engine, index=False, if_exists='append')
-        
-        logging.info(f'Data inserted into {table_name} table successfully.')
-    
-    except SQLAlchemyError as e:
+                # Insert data into the table
+                tuples = [tuple(x) for x in df_enter.to_numpy()]
+                cols = sql.SQL(', ').join(map(sql.Identifier, df_enter.columns))
+                query = sql.SQL("INSERT INTO {} ({}) VALUES %s").format(
+                    sql.Identifier(table_name),
+                    cols
+                )
+                extras.execute_values(cur, query, tuples)
+                conn.commit()
+                logging.info(f'Data inserted into {table_name} table successfully.')
+    except Exception as e:
         logging.error(f"An error occurred: {e}")
-        return None
 
 # Function to add a row to a table
-def AddRowToTable(movie_data):
+def AddRowToTable(movie_data: tuple) -> None:
     # Convert numpy types to native Python types
     converted_data = tuple(int(item) if isinstance(item, np.integer) else item for item in movie_data)
     
     # Create a SQL query with the table name included
     query = """INSERT INTO public.moviesdb ("Date", "Name", "Year", "Letterboxd_URI", "Director", "Genres", "Themes", "Actors") 
                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
-    
     try:
         with psycopg2.connect(**config) as conn:
             with conn.cursor() as cur:
@@ -96,6 +74,6 @@ def AddRowToTable(movie_data):
                 cur.execute(query, converted_data)
                 # Commit the transaction
                 conn.commit()
-                print("Movie inserted successfully")
+                logging.info("Movie inserted successfully.")
     except (Exception, psycopg2.DatabaseError) as error:
-        print(f"Error: {error}")
+        logging.error(f"Error: {error}")
