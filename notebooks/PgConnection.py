@@ -77,3 +77,15 @@ def AddRowToTable(movie_data: tuple) -> None:
                 logging.info("Movie inserted successfully.")
     except (Exception, psycopg2.DatabaseError) as error:
         logging.error(f"Error: {error}")
+        
+
+def DeleteAllRecords(table_name):
+    with psycopg2.connect(**config) as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql.SQL("DELETE FROM public.{}").format(sql.Identifier(table_name)))
+        # Commit the transaction
+        config.commit()
+        
+        print("All records deleted successfully.")
+
+    

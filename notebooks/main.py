@@ -10,16 +10,18 @@ import os
 import zipfile
 import shutil
 import pandas as pd
-import numpy as np
-from Pgconnection import ReturningDF, EnteringTable
+from LetterboxdScraper import LetterboxdScraper 
+from Pgconnection import ReturningDF, EnteringTable, DeleteAllRecords
 
 # Call the ReturningDF function
-ltbd_pg = ReturningDF('SELECT * FROM public.moviesdb')
+ltbxd_pg = ReturningDF('SELECT * FROM public.moviesdb')
 # Check the result
-if ltbd_pg is not None:
+if ltbxd_pg is not None:
     print("Data retrieved.")
 else:
     print("Failed to retrieve data.") 
+    
+DeleteAllRecords('ratings')
 
 def unzip_and_delete(directory):
     # Listar arquivos no diretório
@@ -35,24 +37,26 @@ def unzip_and_delete(directory):
                 print(f'Extraído para: {extract_path}')
                               
                 # Load the CSV file
-                ratings = pd.read_csv(extract_path)
-                print(ratings)
+                csv_file_path_ratings = os.path.join(extract_path, 'ratings.csv')
+                csv_file_path_watched = os.path.join(extract_path, 'watched.csv')
 
-                ltbxd_scp = pd.read_csv(r'../data\raw\letterboxd-gbmonteiro-2024-05-14-22-51-utc\watched.csv')
-                
+                ratings = pd.read_csv(csv_file_path_ratings)
+                ltbxd_scp = pd.read_csv(csv_file_path_watched)
                 #RODAR SCRAPER
                 LetterboxdScraper(ltbxd_scp,ltbxd_pg)
                 
                 #ENTRAR DADOS DE RATING NO PG
                 # Add a new column 'User' with the value 'gbmonteiro' for all rows
-                ratings['User'] = 'gbmonteiro'
+                # Call the ReturningDF function 
+                            
+                ratings['User'] = extract_path.split('-')[1]
 
-                # Select only the required columns: 'User', 'Date', 'Rating'
-                ratings = ratings[['User', 'Date', 'Rating']]
-
+                # Select onlamey the required columns: 'User', 'Date', 'Rating'
+                ratings = ratings[['User','Name', 'Date', 'Rating']]
+                
+                
                 # Insert the DataFrame into the 'public.ratings' table
                 EnteringTable("ratings", ratings)
-                
                 
                 # Remover a pasta extraída
                 shutil.rmtree(extract_path)
@@ -61,4 +65,6 @@ def unzip_and_delete(directory):
 # Uso do exemplo
 starting_directory = r'data/raw/'
 unzip_and_delete(starting_directory)
+
+print('FUNCIONOU!')
     

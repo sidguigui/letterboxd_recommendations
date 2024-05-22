@@ -44,6 +44,7 @@ def LetterboxdScraper(ltbxd_scp,ltbxd_pg):
             if genre_section:
                 genre_tags = genre_section.find_all('a', class_='text-slug')
                 genres = [tag.text for tag in genre_tags if '/films/genre/' in tag['href']]
+                genres = [tag.text for tag in genre_tags[:3]]
             else:
                 genres = ["Genres not found"]
             
@@ -51,6 +52,7 @@ def LetterboxdScraper(ltbxd_scp,ltbxd_pg):
             if genre_section:
                 theme_tags = genre_section.find_all('a', class_='text-slug')
                 themes = [tag.text for tag in theme_tags if '/films/theme/' in tag['href'] or '/films/mini-theme/' in tag['href']]
+                themes = [tag.text for tag in theme_tags[:3]]
             else:
                 themes = ["Themes not found"]
             
@@ -59,6 +61,7 @@ def LetterboxdScraper(ltbxd_scp,ltbxd_pg):
             if actor_section:
                 actor_tags = actor_section.find_all('a', class_='text-slug')
                 actors = [tag.text for tag in actor_tags]
+                actors = [tag.text for tag in actor_tags[:3]]
             else:
                 actors = ["Actors not found"]
             # Update the DataFrame with the director, genres, and themes
