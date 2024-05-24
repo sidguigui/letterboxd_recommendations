@@ -1,18 +1,10 @@
-# ADICIONAR: 
-    # -CHAMAR FUNÇÕES
-    # -TIRAR A PARTE QUE LÊ O CSV
-    # -DELETAR IPYNB
-    # -ENTRAR TODOS OS DFS EM SUAS FUNÇÕES
-    # -AJEITAR FOR
-    # -AO FECHAR O PROGRAMA O PG TEM QUE ESTAR LOTADO   
-
 import os
 import zipfile
 import shutil
+import numpy as np
 import pandas as pd
 from LetterboxdScraper import LetterboxdScraper 
 from Pgconnection import ReturningDF, EnteringTable, DeleteAllRecords
-
 # Call the ReturningDF function
 ltbxd_pg = ReturningDF('SELECT * FROM public.moviesdb')
 # Check the result
@@ -20,9 +12,7 @@ if ltbxd_pg is not None:
     print("Data retrieved.")
 else:
     print("Failed to retrieve data.") 
-    
 DeleteAllRecords('ratings')
-
 def unzip_and_delete(directory):
     # Listar arquivos no diretório
     for item in os.listdir(directory):
@@ -45,15 +35,25 @@ def unzip_and_delete(directory):
                 #RODAR SCRAPER
                 LetterboxdScraper(ltbxd_scp,ltbxd_pg)
                 
-                #ENTRAR DADOS DE RATING NO PG
-                # Add a new column 'User' with the value 'gbmonteiro' for all rows
-                # Call the ReturningDF function 
-                            
-                ratings['User'] = extract_path.split('-')[1]
-
+                user = extract_path.split('-')[1]
+                
+                notrated = pd.DataFrame()
+                notrated['Name'] = ltbxd_scp [['Name']]
+                notrated['User'] = user
+                notrated['Date'] =  np.nan
+                notrated['Date'].fillna(pd.Timestamp('1900-01-01'), inplace=True)
+                notrated['Rating'] = np.nan
+                notrated = notrated[['User','Name', 'Date', 'Rating']]
+                
+                ratings['User'] = user
+                
                 # Select onlamey the required columns: 'User', 'Date', 'Rating'
                 ratings = ratings[['User','Name', 'Date', 'Rating']]
-                
+                unique_rows = notrated[~notrated['Name'].isin(ratings['Name'])]
+                # Append these unique rows to df1
+                ratings = pd.concat([ratings, unique_rows], ignore_index=True)
+                ratings.drop_duplicates(keep='first', inplace=True)
+
                 
                 # Insert the DataFrame into the 'public.ratings' table
                 EnteringTable("ratings", ratings)
@@ -61,10 +61,7 @@ def unzip_and_delete(directory):
                 # Remover a pasta extraída
                 shutil.rmtree(extract_path)
                 print(f'Pasta removida: {extract_path}')
-
 # Uso do exemplo
 starting_directory = r'data/raw/'
 unzip_and_delete(starting_directory)
-
 print('FUNCIONOU!')
-    

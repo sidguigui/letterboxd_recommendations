@@ -83,9 +83,6 @@ def DeleteAllRecords(table_name):
     with psycopg2.connect(**config) as conn:
         with conn.cursor() as cur:
             cur.execute(sql.SQL("DELETE FROM public.{}").format(sql.Identifier(table_name)))
-        # Commit the transaction
-        config.commit()
-        
+            # Commit the transaction
+            conn.commit()
         print("All records deleted successfully.")
-
-    
