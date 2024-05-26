@@ -36,7 +36,8 @@ def LetterboxdScraper(ltbxd_scp,ltbxd_pg):
             director_span = soup.find('span', class_='directorlist')
 
             # Extract the director's name from the span
-            director_name = director_span.text.strip()
+            director_name = director_span.text.strip() if director_span else "Director not found"
+
             
             # Extract genres from the specific section
             genre_section = soup.find('div', id='tab-genres')
