@@ -6,6 +6,7 @@ import pandas as pd
 from LetterboxdScraper import LetterboxdScraper 
 from Pgconnection import ReturningDF, EnteringTable, DeleteAllRecords
 from LtbxdRecommendation import LtbxdRecommendation
+
 # Call the ReturningDF function
 ltbxd_pg = ReturningDF('SELECT * FROM public.moviesdb')
 # Check the result
@@ -67,7 +68,11 @@ def UnzipDelete(directory):
 starting_directory = r'data/raw/'
 UnzipDelete(starting_directory)
 
+DeleteAllRecords('recommendation')
+
 recommendation = LtbxdRecommendation()
+
+EnteringTable("recommendation", recommendation)
 
 print(recommendation)
 

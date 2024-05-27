@@ -77,7 +77,7 @@ def LtbxdRecommendation():
         hybrid_top_movies = [movies_df.iloc[i[0]] for i in movie_sim_scores if movies_df.iloc[i[0]]['Name'] not in user_rated_movies][:top_n]
         
         # Collect recommendations for the user
-        recommendations_df = pd.DataFrame({'User_ID': [user_id] * len(hybrid_top_movies), 'Movie_Name': [movie['Name'] for movie in hybrid_top_movies]})
+        recommendations_df = pd.DataFrame({'User': [user_id] * len(hybrid_top_movies), 'Name': [movie['Name'] for movie in hybrid_top_movies]})
         all_recommendations.append(recommendations_df)
 
     # Concatenate all user recommendations into a single DataFrame
