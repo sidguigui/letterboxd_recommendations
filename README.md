@@ -7,9 +7,11 @@ Developed by Guilherme Monteiro as a personal study on recommendation methods, t
 This project aims to enhance Letterboxed by adding a recommendation system based on two main machine-learning methods: Content-based and Collaborative filtering. Additionally, it involves analyzing Letterboxed data to understand user preferences and movie trends. The recommendation system will provide personalized movie suggestions. PostgreSQL will manage the data efficiently, supporting the recommendation system, while a Power BI dashboard will complement Letterboxed for visualization.
 
 ### Methods Used
-* Data Visualization
 * Recommendation system
-* etc.
+* Content-based Filtering
+* Collaborative Filtering
+* Connection with PostgreSQL
+* Data Visualization
 
 ### Technologies
 * Python
