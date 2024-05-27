@@ -1,10 +1,10 @@
 # Project Name
-This project is a part of the [Data Science Working Group](http://datascience.codeforsanfrancisco.org) at [Code for San Francisco](http://www.codeforsanfrancisco.org).  Other DSWG projects can be found at the [main GitHub repo](https://github.com/sfbrigade/data-science-wg).
+Developed by Guilherme Monteiro as a personal study on recommendation methods, this project explores the integration of content-based and collaborative filtering techniques. 
 
 #### -- Project Status: [Active]
 
 ## Project Intro/Objective
-The purpose of this project is to increment the fuctionalities of letterboxed, including a recommendation system based on the... To include analysis of letterboxed data.
+This project aims to enhance Letterboxed by adding a recommendation system based on two main machine-learning methods: Content-based and Collaborative filtering. Additionally, it involves analyzing Letterboxed data to understand user preferences and movie trends. The recommendation system will provide personalized movie suggestions. PostgreSQL will manage the data efficiently, supporting the recommendation system, while a Power BI dashboard will complement Letterboxed for visualization.
 
 ### Methods Used
 * Data Visualization
