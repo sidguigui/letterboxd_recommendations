@@ -10,6 +10,12 @@ def LtbxdRecommendation():
     movies_df = pd.DataFrame(ReturningDF('SELECT * FROM public.moviesdb'))
     ratings_df = pd.DataFrame(ReturningDF('SELECT * FROM public.ratings'))
 
+    # Drop rows with NaNs in the ratings dataset
+    ratings_df = ratings_df.dropna(subset=['User', 'Name', 'Rating'])
+
+    # Drop rows with NaNs in crucial columns in the movies dataset
+    movies_df = movies_df.dropna(subset=['Genres', 'Themes', 'Actors', 'Director'])
+
     # Load the data into a Surprise dataset
     reader = Reader(rating_scale=(1, 5))
     data = Dataset.load_from_df(ratings_df[['User', 'Name', 'Rating']], reader)
@@ -33,8 +39,8 @@ def LtbxdRecommendation():
     movies_df.drop(['Actors', 'Themes', 'Genres'], axis=1, inplace=True)
 
     # Combine relevant features into a single string for content-based filtering
-    movies_df['content'] = movies_df.fillna('').apply(
-        lambda row: ' '.join(row[['Genre0', 'Genre1', 'Genre2', 'Theme0', 'Theme1', 'Theme2', 'Actor0', 'Actor1', 'Actor2', 'Director']]), axis=1
+    movies_df['content'] = movies_df.apply(
+        lambda row: ' '.join([str(value) if value is not None else '' for value in row[['Genre0', 'Genre1', 'Genre2', 'Theme0', 'Theme1', 'Theme2', 'Actor0', 'Actor1', 'Actor2', 'Director']]]), axis=1
     )
 
     # Convert the content into a matrix of TF-IDF features
@@ -52,10 +58,10 @@ def LtbxdRecommendation():
     top_n = 10  # Number of top recommendations
 
     all_recommendations = []
-
+    watched = pd.DataFrame(ReturningDF('SELECT * FROM public.ratings'))
     for user_id in user_ids:
         # Get movies already rated by the user
-        user_rated_movies = ratings_df[ratings_df['User'] == user_id]['Name'].tolist()
+        user_rated_movies = watched[watched['User'] == user_id]['Name'].tolist()
         
         # Get collaborative filtering predictions, filtering out already rated movies
         cf_predictions = [(movie_name, algo.predict(user_id, movie_name).est) for movie_name in movie_names if movie_name not in user_rated_movies]
