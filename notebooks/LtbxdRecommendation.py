@@ -51,10 +51,14 @@ def LtbxdRecommendation():
     user_ids = ratings_df['User'].unique()
     top_n = 10  # Number of top recommendations
 
+    all_recommendations = []
+
     for user_id in user_ids:
-        # Get collaborative filtering predictions
-        cf_predictions = [(movie_name, algo.predict(user_id, movie_name).est) for movie_name in movie_names]
+        # Get movies already rated by the user
+        user_rated_movies = ratings_df[ratings_df['User'] == user_id]['Name'].tolist()
         
+        # Get collaborative filtering predictions, filtering out already rated movies
+        cf_predictions = [(movie_name, algo.predict(user_id, movie_name).est) for movie_name in movie_names if movie_name not in user_rated_movies]
         # Get the top N movies from collaborative filtering
         cf_predictions.sort(key=lambda x: x[1], reverse=True)
         cf_top_movies = [movie_name for movie_name, _ in cf_predictions[:top_n]]
@@ -69,13 +73,14 @@ def LtbxdRecommendation():
         movie_sim_scores = list(enumerate(sim_scores))
         movie_sim_scores.sort(key=lambda x: x[1], reverse=True)
         
-        # Get the top N recommendations
-        hybrid_top_movies = [movies_df.iloc[i[0]] for i in movie_sim_scores[:top_n]]
+        # Get the top N recommendations, filtering out already rated movies
+        hybrid_top_movies = [movies_df.iloc[i[0]] for i in movie_sim_scores if movies_df.iloc[i[0]]['Name'] not in user_rated_movies][:top_n]
         
-        # Display the recommendations
-        print(f"Top recommendations for user {user_id}:")
-        for movie in hybrid_top_movies:
-            print(movie['Name'])
+        # Collect recommendations for the user
+        recommendations_df = pd.DataFrame({'User_ID': [user_id] * len(hybrid_top_movies), 'Movie_Name': [movie['Name'] for movie in hybrid_top_movies]})
+        all_recommendations.append(recommendations_df)
 
-# Call the function to get recommendations
-LtbxdRecommendation()
+    # Concatenate all user recommendations into a single DataFrame
+    recommendations_final = pd.concat(all_recommendations, ignore_index=True)
+    
+    return recommendations_final

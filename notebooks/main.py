@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from LetterboxdScraper import LetterboxdScraper 
 from Pgconnection import ReturningDF, EnteringTable, DeleteAllRecords
+from LtbxdRecommendation import LtbxdRecommendation
 # Call the ReturningDF function
 ltbxd_pg = ReturningDF('SELECT * FROM public.moviesdb')
 # Check the result
@@ -13,7 +14,8 @@ if ltbxd_pg is not None:
 else:
     print("Failed to retrieve data.") 
 DeleteAllRecords('ratings')
-def unzip_and_delete(directory):
+
+def UnzipDelete(directory):
     # Listar arquivos no diretório
     for item in os.listdir(directory):
         item_path = os.path.join(directory, item)
@@ -63,5 +65,10 @@ def unzip_and_delete(directory):
                 print(f'Pasta removida: {extract_path}')
 # Uso do exemplo
 starting_directory = r'data/raw/'
-unzip_and_delete(starting_directory)
+UnzipDelete(starting_directory)
+
+recommendation = LtbxdRecommendation()
+
+print(recommendation)
+
 print('FUNCIONOU!')
