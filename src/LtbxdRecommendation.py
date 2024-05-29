@@ -1,5 +1,5 @@
 import pandas as pd
-from surprise import Dataset, Reader, SVDpp
+from surprise import Dataset, Reader, SVD
 from surprise.model_selection import train_test_split, cross_validate
 from Pgconnection import ReturningDF  # Assuming this is a custom module for database connection
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -24,7 +24,7 @@ def LtbxdRecommendation():
     trainset, testset = train_test_split(data, test_size=0.25)
 
     # Train the SVD algorithm
-    algo = SVDpp()
+    algo = SVD()
     algo.fit(trainset)
 
     # Evaluate the algorithm
