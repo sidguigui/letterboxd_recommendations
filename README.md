@@ -46,6 +46,60 @@ This project seeks to create a robust movie recommendation system for Letterboxe
    - Balancing between overfitting and generalization in the recommendation models.
    - Efficiently managing and querying large datasets in PostgreSQL.
 
+## Theoric background
+### Recommendation system
+As mentioned, the recommendation system was developed using the combined methods of Collaborative Filtering and Content-Based Filtering.
+
+### Collaborative Filtering
+
+The Collaborative Filtering was developed by training the SVD (Singular Value Decomposition) algorithm and cross validating it with the measures RMSE(Root Mean Square Error) and MAE(Mean Absolute Error), both measures to calculate the precision of the 
+decomposition.
+
+The surprise package will get the item [user_id,movie_name,rating] matrix and rearrange it to get the R matrix, in which will have the following configuration.
+
+- $R$ is a $m \times n$ matrix
+- $m$ is the number of users in the matrix
+- $n$ is the number of all the movies in the entire rating system
+
+In which the item $r_{ui}$ represents the rating given by user $u$ to film $i$.
+
+Then, instead of using the regular SVD decomposition $R = U \Sigma V^T$, the recommender system will produce the following decomposition 
+
+$R \approx P Q^T$
+
+where: 
+- $P$ is an $m \times k$ matrix representing user preferences (user latent feature matrix)
+- $Q$ is an $n \times k$ matrix representing the film characteristics (item latent feature matrix)
+
+Each row in $P$ represent a user and each row of $Q$ represents a film.
+
+
+$\hat{r}_{ui} = \mu + b_u +b_i + q_i^T P_U$
+
+where:
+
+- $\mu$ is the global mean of all ratings
+- $b_u$ is the bias of user
+- $b_i$ is the bias of film 
+- $p_u $ is the latent feature vector for user
+- $q_i$ is the latent feature vector for film
+
+The matrices $P$ and $Q$ are learned through an optimization process, often using stochastic gradient descent (SGD). The objective is to minimize the regularized squared error between the observed ratings $r_{ui}$ and the predicted ratings $\hat{r}_{ui}$:
+
+$\min_{P, Q, b_u, b_i} \sum_{(u, i) \in \mathcal{K}} \left( r_{ui} - (\mu + b_u + b_i + q_i^T p_u) \right)^2 + \lambda \left( \|p_u\|^2 + \|q_i\|^2 + b_u^2 + b_i^2 \right)$
+
+
+Then it was used the 5-fold cross-validation, as the dataset is split into 5 equal-sized folds. The model is trained and evaluated 5 times, each time using a different fold as the validation set and the remaining 4 folds as the training set. This process helps to reduce the variance of the evaluation metrics by averaging results over multiple folds.
+
+Then the output will show the RMSE and MAE for each of the 5 folds and provide the mean and standard deviation for these metrics across all folds. This helps you understand the performance and variability of your model. Using cross_validate with RMSE and MAE in 5-fold cross-validation provides a robust evaluation of your recommender system. It helps in understanding the model’s accuracy and error distribution, leading to more reliable and generalized performance insights.
+
+### Content-Based Filtering
+
+CONTINUE 
+
+
+## Training recommendation method
+
 ## Needs of this project
 
 - Data exploration and descriptive statistics
