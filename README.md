@@ -1,4 +1,4 @@
-# Project Name
+# Letterboxd Recommendation Project
 Developed by Guilherme Monteiro as a personal study on recommendation methods, this project explores the integration of content-based and collaborative filtering techniques.
 
 #### -- Project Status: [Active]
