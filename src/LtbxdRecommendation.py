@@ -47,7 +47,7 @@ def LtbxdRecommendation():
     tfidf = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf.fit_transform(movies_df['content'])
 
-    # Compute the cosine similarity matrix
+    # Compute the cosine similarity matrix 
     cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 
     # Get all movie names

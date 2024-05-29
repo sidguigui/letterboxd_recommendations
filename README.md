@@ -95,10 +95,20 @@ Then the output will show the RMSE and MAE for each of the 5 folds and provide t
 
 ### Content-Based Filtering
 
-CONTINUE 
+To create the Content-Based Filtering recommendation, each movie's genres, themes, and actors are concatenated into a single string for each movie, to create an unified representation of each movie that includes all relevant features.
+
+Then, the TF-IDF (Term Frequency-Inverse Document Frequency) vectorization is used to convert textual data into numerical vectors. The Term Frequency (TF) measures the frequency of a word in a document (film). It's calculated as the number of times a term appears in a document divided by the total number of terms in the document. The Inverse Document Frequency (IDF) measures how important a term is across all documents (films). It's calculated as the logarithm of the total number of documents divided by the number of documents containing the term. Finally, the TF-IDF score for a term in a document is calculated by multiplying its TF by its IDF, the result is a numerical vector for each document (film) where each element represents the TF-IDF score of a term in the document.
+
+For each user, the system identifies the films they have rated , then looks for similar films based on the cosine similarity scores. The Cosine similarity scores indicate how similar two films are based on their TF-IDF vector representations. The system selects the top similar films and recommends them to the user.The process is repeated for each user, providing personalized recommendations based on their movie ratings and the similarity of films.
+
+The Cosine similarity is calculated between every pair of movies' TF-IDF vectors. With a higher cosine similarity score indicates greater similarity between two movies. It ranges from -1 (completely dissimilar) to 1 (identical). This similarity metric is used to find movies that are most similar to each other, enabling personalized recommendations.
+
 
 
 ## Training recommendation method
+
+CONTINUE DAQUI
+
 
 ## Needs of this project
 
