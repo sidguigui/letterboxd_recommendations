@@ -81,7 +81,7 @@ where:
 - $\mu$ is the global mean of all ratings
 - $b_u$ is the bias of user
 - $b_i$ is the bias of film 
-- $p_u $ is the latent feature vector for user
+- $p_u$ is the latent feature vector for user
 - $q_i$ is the latent feature vector for film
 
 The matrices $P$ and $Q$ are learned through an optimization process, often using stochastic gradient descent (SGD). The objective is to minimize the regularized squared error between the observed ratings $r_{ui}$ and the predicted ratings $\hat{r}_{ui}$:
