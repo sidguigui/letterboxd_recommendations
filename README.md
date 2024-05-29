@@ -106,8 +106,25 @@ The Cosine similarity is calculated between every pair of movies' TF-IDF vectors
 
 
 ## Training recommendation method
+The evaluation of the Collaborative Filtering had the following results with the training data.
 
-CONTINUE DAQUI
+- SVD VALUE: 
+
+|                 | Fold 1 | Fold 2 | Fold 3 | Fold 4 | Fold 5 | Mean  | Std    |
+|-----------------|--------|--------|--------|--------|--------|-------|--------|
+| RMSE (testset)  | 0.7174 | 0.6368 | 0.7980 | 0.6619 | 0.7129 | 0.7054| 0.0555 |
+| MAE (testset)   | 0.5692 | 0.5136 | 0.6248 | 0.5204 | 0.5716 | 0.5599| 0.0403 |
+| Fit time        | 0.00   | 0.00   | 0.01   | 0.01   | 0.00   | 0.01  | 0.00   |
+| Test time       | 0.00   | 0.00   | 0.00   | 0.00   | 0.00   | 0.00  | 0.00   |
+
+- SVD++ VALUE:
+
+|                 | Fold 1 | Fold 2 | Fold 3 | Fold 4 | Fold 5 | Mean  | Std    |
+|-----------------|--------|--------|--------|--------|--------|-------|--------|
+| RMSE (testset)  | 0.6861 | 0.7070 | 0.7010 | 0.6987 | 0.6946 | 0.6975| 0.0070 |
+| MAE (testset)   | 0.5401 | 0.5680 | 0.5678 | 0.5501 | 0.5417 | 0.5535| 0.0122 |
+| Fit time        | 0.19   | 0.21   | 0.21   | 0.20   | 0.20   | 0.20  | 0.01   |
+| Test time       | 0.01   | 0.01   | 0.01   | 0.01   | 0.01   | 0.01  | 0.00   |
 
 
 ## Needs of this project
