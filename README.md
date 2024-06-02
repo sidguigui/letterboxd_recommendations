@@ -8,6 +8,8 @@ In an era where content availability is vast and overwhelming, we are confronted
 
 With this in mind, I envisioned creating a recommendation system to help decide what movies to watch next by getting the data from Letterboxd. Given the structured data from such a system, I also saw an opportunity to develop a visualization tool to provide detailed film-watching analytics. And by using the exported data from my friends Letterboxd accounts, it was possible to create the training data set to validate the recommendation system created.
 
+As Collaborative Filtering (CF) prediction is commonly employed in data coming from rating systems base systems a common problem, specially when utilizing few users it is the data sparsity. Caused by the lack of diversity in the movies composing of the dataframes. Therefore, a way to work with this problem is to create a hybrid paring it with a Conten Based Filtering (CBF) prediction. 
+
 Thus, this project aims to enhance Letterboxd functionalities by adding a recommendation system based on two main machine-learning methods: Content-based and Collaborative filtering. Additionally, it involves analyzing Letterboxed data to understand user preferences and movie trends. The recommendation system will provide personalized movie suggestions. PostgreSQL will manage the data efficiently, supporting the recommendation system, while a Power BI dashboard will complement Letterboxd for visualization.
 
 ### Methods Used
@@ -65,8 +67,27 @@ The surprise package will get the item [user_id,movie_name,rating] matrix and re
 
 In which the item $r_{ui}$ represents the rating given by user $u$ to film $i$.
 
-Then, instead of using the regular SVD decomposition $R = U \Sigma V^T$, the recommender system will produce the following decomposition 
+Then, using the regular SVD decomposition $R = U \Sigma V^T$, the recommender system will produce the following decomposition 
 
+$$R = U \Sigma V^T$$
+
+Reducing the dimensionality to  $k$ latent factors, instead of using the full SVD, we can approximate $R$ using a reduced number of singular values and corresponding vectors. This is done by keeping only the top $k$ singular values and their corresponding vectors. 
+
+$$R \approx U_k \Sigma_k V^T_k$$
+
+where:
+   - $U_K$ is the $m \times k$ matrix containing the first $k$ columns of $U$.
+   - $\Sigma_k$ is the first $k \times k$ diagonal matrix containing the top $k$ singular values.
+   - $V_k$ is the $n \times k$ matrix containing the first $k$ columns of $V$.
+
+ To transform the above approximation into the desired form $R \approx PQ^T $ the transfoamtion steps are as follows.
+
+$$P = U_k \Sigma_k^{1/2}$$
+$$Q = V_k \Sigma_k^{1/2}$$
+where:
+ - $\Sigma_k^{1/2}$ is the square root of $\Sigma_k$
+
+Then, the approximation of the original matrix gets to the result. 
 $$R \approx P Q^T$$
 
 where: 
@@ -140,19 +161,23 @@ The cosine similarity is calculated between every pair of movies' TF-IDF vectors
 
 $$\text{cosine}(\mathbf{A}, \mathbf{B}) = \frac{\sum_{i=1}^{n} A_i B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \sqrt{\sum_{i=1}^{n} B_i^2}}$$
 
-## Recommendation system algorithm
+### Used Python libraries
+The Surprise library is a Python scikit for building and analyzing recommender systems that deal with explicit rating data. The functions used were 'Reader' to define the format of the ratings data, 'SVD' is the singular value decomposition algorithm, 'train_test_split' to separate the test and train dataframes, and finally 'cross_validate' to get the cross validation of an algorithm.
 
-1. Get the 'Ratings' and the 'Movies' dataframe. 
-1. Drop the not rated movies from the 'Ratings' dataframe.
+
+For the development of this project the libraries used were Scikit-learn and Surprise. Scikit-Learn has built-in machine learning algorithms and models, called estimators. Each estimator can be fitted to some data using its fit method. The functions used in this project were 'TfidfVectorizer' to create the TF-IDF matrix and 'linear_kernel' to measure similarity between two items based on their content.
+
+## Recommendation system algorithm
+1. Get the 'Ratings' and the 'Movies' dataframe from the PostgreSQL. 
 1. Feed the 'Ratings' dataframe into an Surprise data set.
 1. Split the train and tests set - test_size = 0.25.  
 1. Train the SVD algorithm.
 1. Evaluate the algorithm by printing the 'RMSE' and 'MAE' scores.
-1. Prepare the 'Movies' dataframe to be fed into TF-EDF matrix by combining features into a single colum 'content'.
+1. Prepare the 'Movies' dataframe to be fed into TF-IDF matrix by combining features into a single colum 'content'.
 1. Fit the TF-IDF matrix.
 1. Compute the cosine similarity matrix by the TF-IDF matrix.
 1. Define the weights for each method.
-1. Generate the list of Collaborative Filtering predicitions for the selected  'User Id'.
+1. Generate the list of Collaborative Filtering predicitions for the selected 'User Id'.
 1. Get the top 10 films in the 'CF' dataframe.
 1. For each top CF recommendation, it finds similar movies using CBF.
 1. CF and CBF recommendations are combined with respective weights.
@@ -163,7 +188,6 @@ $$\text{cosine}(\mathbf{A}, \mathbf{B}) = \frac{\sum_{i=1}^{n} A_i B_i}{\sqrt{\s
 The comparative analysis between SVD and SVD++ reveals that SVD++ slightly outperforms SVD in terms of predictive accuracy, with lower mean RMSE (0.6975 vs. 0.7054) and MAE (0.5535 vs. 0.5599). However, SVD is faster, with a mean fit time of 0.01 seconds compared to SVD++'s 0.20 seconds. Thus, SVD was chosen to be used in this project. 
 
 #### SVD results: 
-
 <div style="margin: 0 auto; width: fit-content;">
 
 |                 | Fold 1 | Fold 2 | Fold 3 | Fold 4 | Fold 5 | Mean  | Std    |

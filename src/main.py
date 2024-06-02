@@ -5,29 +5,27 @@ import numpy as np
 import pandas as pd
 from LetterboxdScraper import LetterboxdScraper 
 from Pgconnection import ReturningDF, EnteringTable, DeleteAllRecords
-from LtbxdRecommendation import LtbxdRecommendation
+from LetterboxdRecommendation import LetterboxdRecommendation
 
-# Call the ReturningDF function
-ltbxd_pg = ReturningDF('SELECT * FROM public.moviesdb')
-# Check the result
-if ltbxd_pg is not None:
-    print("Data retrieved.")
-else:
-    print("Failed to retrieve data.") 
+# Getting the Movies DB PostgreSQL 
+movies_db = ReturningDF('SELECT * FROM public.moviesdb')
+
+# Deleting previous ratings
 DeleteAllRecords('ratings')
 
+#Function to get the data from the .zip files
 def UnzipDelete(directory):
-    # Listar arquivos no diretório
+    # List files in the directory
     for item in os.listdir(directory):
         item_path = os.path.join(directory, item)
-        # Verificar se é um arquivo e se tem extensão .zip
+        # Verify if is a .zip file
         if os.path.isfile(item_path) and item.endswith('.zip'):
-            print(f'Encontrado arquivo zip: {item}')
-            # Extrair o arquivo zip
+            print(f'Zip file found: {item}')
+            # Extract .zip file
             with zipfile.ZipFile(item_path, 'r') as zip_ref:
                 extract_path = os.path.join(directory, os.path.splitext(item)[0])
                 zip_ref.extractall(extract_path)
-                print(f'Extraído para: {extract_path}')
+                print(f'Extracted to: {extract_path}')
                               
                 # Load the CSV file
                 csv_file_path_ratings = os.path.join(extract_path, 'ratings.csv')
@@ -35,11 +33,14 @@ def UnzipDelete(directory):
 
                 ratings = pd.read_csv(csv_file_path_ratings)
                 ltbxd_scp = pd.read_csv(csv_file_path_watched)
-                #RODAR SCRAPER
-                LetterboxdScraper(ltbxd_scp,ltbxd_pg)
+                
+                #Running webscraper
+                LetterboxdScraper(ltbxd_scp,movies_db)
                 
                 user = extract_path.split('-')[1]
                 
+                #Creating the 'Notrated' df to include 
+                #fake dates(1900-01-01) and NaN into the rating                 
                 notrated = pd.DataFrame()
                 notrated['Name'] = ltbxd_scp [['Name']]
                 notrated['User'] = user
@@ -50,30 +51,35 @@ def UnzipDelete(directory):
                 
                 ratings['User'] = user
                 
-                # Select onlamey the required columns: 'User', 'Date', 'Rating'
+                # Select the required columns: 'User', 'Date', 'Rating'
                 ratings = ratings[['User','Name', 'Date', 'Rating']]
                 unique_rows = notrated[~notrated['Name'].isin(ratings['Name'])]
+                
                 # Append these unique rows to df1
                 ratings = pd.concat([ratings, unique_rows], ignore_index=True)
                 ratings.drop_duplicates(keep='first', inplace=True)
-
-                
+           
                 # Insert the DataFrame into the 'public.ratings' table
                 EnteringTable("ratings", ratings)
                 
-                # Remover a pasta extraída
+                # Delete the extracted directory
                 shutil.rmtree(extract_path)
-                print(f'Pasta removida: {extract_path}')
-# Uso do exemplo
+                print(f'Removed directory: {extract_path}')
+                              
+# File directory
 starting_directory = r'data/raw/'
+
+#Running the UnzipDelete function
 UnzipDelete(starting_directory)
 
+#Deeleting Recomendation table in the DB
 DeleteAllRecords('recommendation')
 
-recommendation = LtbxdRecommendation()
+#Running the recommendation algorith
+recommendation = LetterboxdRecommendation()
 
+#Entering recommendation into DB
 EnteringTable("recommendation", recommendation)
 
 print(recommendation)
-
 print('FUNCIONOU!')

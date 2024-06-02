@@ -1,11 +1,11 @@
 import pandas as pd
 from surprise import Dataset, Reader, SVD
 from surprise.model_selection import train_test_split, cross_validate
-from Pgconnection import ReturningDF  # Assuming this is a custom module for database connection
+from Pgconnection import ReturningDF
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 
-def LtbxdRecommendation():
+def LetterboxdRecommendation():
     # Load data from the database
     movies_df = pd.DataFrame(ReturningDF('SELECT * FROM public.moviesdb'))
     ratings_df = pd.DataFrame(ReturningDF('SELECT * FROM public.ratings'))
