@@ -140,6 +140,25 @@ The cosine similarity is calculated between every pair of movies' TF-IDF vectors
 
 $$\text{cosine}(\mathbf{A}, \mathbf{B}) = \frac{\sum_{i=1}^{n} A_i B_i}{\sqrt{\sum_{i=1}^{n} A_i^2} \sqrt{\sum_{i=1}^{n} B_i^2}}$$
 
+## Recommendation system algorithm
+
+1. Get the 'Ratings' and the 'Movies' dataframe. 
+1. Drop the not rated movies from the 'Ratings' dataframe.
+1. Feed the 'Ratings' dataframe into an Surprise data set.
+1. Split the train and tests set - test_size = 0.25.  
+1. Train the SVD algorithm.
+1. Evaluate the algorithm by printing the 'RMSE' and 'MAE' scores.
+1. Prepare the 'Movies' dataframe to be fed into TF-EDF matrix by combining features into a single colum 'content'.
+1. Fit the TF-IDF matrix.
+1. Compute the cosine similarity matrix by the TF-IDF matrix.
+1. Define the weights for each method.
+1. Generate the list of Collaborative Filtering predicitions for the selected  'User Id'.
+1. Get the top 10 films in the 'CF' dataframe.
+1. For each top CF recommendation, it finds similar movies using CBF.
+1. CF and CBF recommendations are combined with respective weights.
+1. Movies are sorted based on the combined scores, and already watched movies are filtered out.
+1. Top recommendations are collected and combined for all users.
+
 ## Training and testing recommendation method
 The comparative analysis between SVD and SVD++ reveals that SVD++ slightly outperforms SVD in terms of predictive accuracy, with lower mean RMSE (0.6975 vs. 0.7054) and MAE (0.5535 vs. 0.5599). However, SVD is faster, with a mean fit time of 0.01 seconds compared to SVD++'s 0.20 seconds. Thus, SVD was chosen to be used in this project. 
 

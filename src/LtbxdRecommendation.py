@@ -39,51 +39,85 @@ def LtbxdRecommendation():
     movies_df.drop(['Actors', 'Themes', 'Genres'], axis=1, inplace=True)
 
     # Combine relevant features into a single string for content-based filtering
-    movies_df['content'] = movies_df.apply(
-        lambda row: ' '.join([str(value) if value is not None else '' for value in row[['Genre0', 'Genre1', 'Genre2', 'Theme0', 'Theme1', 'Theme2', 'Actor0', 'Actor1', 'Actor2', 'Director']]]), axis=1
-    )
+    movies_df['content'] = movies_df.apply(lambda row: ' '.join([str(value) if value is not None else '' for value in row[['Genre0', 'Genre1', 'Genre2', 'Theme0', 'Theme1', 'Theme2', 'Actor0', 'Actor1', 'Actor2', 'Director']]]), axis=1)
 
     # Convert the content into a matrix of TF-IDF features
     tfidf = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf.fit_transform(movies_df['content'])
 
-    # Compute the cosine similarity matrix 
+    # Calculate the cosine similarity matrix 
     cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 
-    # Get all movie names
+    #Preparing for loops
     movie_names = movies_df['Name'].tolist()
-    
-    # Iterate over each user and get recommendations
+
     user_ids = ratings_df['User'].unique()
     top_n = 10  # Number of top recommendations
-
+    
     all_recommendations = []
+    
+    # Getting the watched films
     watched = pd.DataFrame(ReturningDF('SELECT * FROM public.ratings'))
+    
+    # Weights
+    cf_weight = 0.5
+    cbf_weight = 0.5
+    
+    # Loop to get the recommendations for each user   
     for user_id in user_ids:
-        # Get movies already rated by the user
-        user_rated_movies = watched[watched['User'] == user_id]['Name'].tolist()
         
-        # Get collaborative filtering predictions, filtering out already rated movies
-        cf_predictions = [(movie_name, algo.predict(user_id, movie_name).est) for movie_name in movie_names if movie_name not in user_rated_movies]
+        # Get movies already watched by the user
+        user_watched_movies = watched[watched['User'] == user_id]['Name'].tolist()
+        
+        # Get collaborative filtering predictions, filtering out already wacthed movies
+        cf_predictions = [(movie_name, algo.predict(user_id, movie_name).est) for movie_name in movie_names if movie_name not in user_watched_movies]
+        
         # Get the top N movies from collaborative filtering
         cf_predictions.sort(key=lambda x: x[1], reverse=True)
         cf_top_movies = [movie_name for movie_name, _ in cf_predictions[:top_n]]
         
-        # Get the indices of the top N movies
-        cf_indices = [movies_df.index[movies_df['Name'] == movie_name][0] for movie_name in cf_top_movies]
-
-        # Get the similarity scores of the top N movies with all movies
-        sim_scores = cosine_sim[cf_indices].mean(axis=0)
+        # Initialize list for content-based filtering recommendations
+        cbf_top_movies = []
         
-        # Combine the similarity scores
-        movie_sim_scores = list(enumerate(sim_scores))
-        movie_sim_scores.sort(key=lambda x: x[1], reverse=True)
+        for movie_name in cf_top_movies:
+            # Get the index of the movie
+            idx = movies_df.index[movies_df['Name'] == movie_name].tolist()[0]
+            # Get the similarity scores of all movies with that movie
+            sim_scores = list(enumerate(cosine_sim[idx]))
+            # Sort the movies based on the similarity scores
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+            # Get the top N similar movies
+            cbf_top_movies.extend([movies_df.iloc[i[0]]['Name'] for i in sim_scores[1:top_n+1]])
         
-        # Get the top N recommendations, filtering out already rated movies
-        hybrid_top_movies = [movies_df.iloc[i[0]] for i in movie_sim_scores if movies_df.iloc[i[0]]['Name'] not in user_rated_movies][:top_n]
+        # Combine CF and CBF recommendations and assign weights
+        cf_dict = {movie: cf_weight for movie in cf_top_movies}
+        cbf_dict = {movie: cbf_weight for movie in cbf_top_movies}
+        
+        final_scores = {}
+        
+        for movie, weight in cf_dict.items():
+            if movie in final_scores:
+                final_scores[movie] += weight
+            else:
+                final_scores[movie] = weight
+        
+        for movie, weight in cbf_dict.items():
+            if movie in final_scores:
+                final_scores[movie] += weight
+            else:
+                final_scores[movie] = weight
+        
+        # Sort movies by final scores
+        sorted_final_scores = sorted(final_scores.items(), key=lambda x: x[1], reverse=True)
+        
+        # Filter out already rated movies
+        final_recommendations = [movie for movie, score in sorted_final_scores if movie not in user_watched_movies]
+        
+        # Take the top N from the blended list
+        final_recommendations = final_recommendations[:top_n]
         
         # Collect recommendations for the user
-        recommendations_df = pd.DataFrame({'User': [user_id] * len(hybrid_top_movies), 'Name': [movie['Name'] for movie in hybrid_top_movies]})
+        recommendations_df = pd.DataFrame({'User': [user_id] * len(final_recommendations), 'Name': final_recommendations})
         all_recommendations.append(recommendations_df)
 
     # Concatenate all user recommendations into a single DataFrame
