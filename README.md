@@ -5,6 +5,7 @@ Developed by Guilherme Monteiro as a personal study on recommendation methods, t
 
 
 ![Preview]([reports\figures\bi_1.png](https://github.com/sidguigui/letterboxd_recommendations/blob/main/reports/figures/bi_1.png))
+![image](https://github.com/sidguigui/letterboxd_recommendations/assets/134338795/3ede96d4-7598-457e-ad06-0a5f91d0d815)
 
 ![](reports\figures\bi_2.png)
 
