@@ -3,18 +3,23 @@ Developed by Guilherme Monteiro as a personal study on recommendation methods, t
 
 #### -- Project Status: [Active]
 
+
+![](reports\figures\bi_1.png)
+
+![](reports\figures\bi_2.png)
+
 ## Project Intro/Objective
 In an era where content availability is vast and overwhelming, we are confronted with a new dilemma: how to navigate and choose from so many possibilities. Streaming services have implemented various engines to recommend the next movie or series to watch. However, the challenge remains: how do we aggregate and manage all this data effectively? Social media platforms like Letterboxd have emerged to help users track and explore each other's favorite films. Letterboxd specially, allows users to catalog and share their movie-watching experiences. However, it lacks a personalized recommendation system.
 
-With this in mind, I envisioned creating a recommendation system to help decide what movies to watch next by getting the data from Letterboxd. Given the structured data from such a system, I also saw an opportunity to develop a visualization tool to provide detailed film-watching analytics. And by using the exported data from my friends Letterboxd accounts, it was possible to create the training data set to validate the recommendation system created.
+With this in mind, I envisioned creating a recommendation system to help decide what movies to watch next by getting the data from my friends in Letterboxd. Given the structured data from such a system, I also saw an opportunity to develop a visualization tool to provide detailed film-watching analytics. And by using the exported data from my friends Letterboxd accounts, it was possible to create the training data set to validate the recommendation system created.
 
-As Collaborative Filtering (CF) prediction is commonly employed in data coming from rating systems base systems a common problem, specially when utilizing few users it is the data sparsity. Caused by the lack of diversity in the movies composing of the dataframes. Therefore, a way to work with this problem is to create a hybrid paring it with a Conten Based Filtering (CBF) prediction. 
+As Collaborative Filtering (CF) prediction is commonly employed in data coming from rating systems. A common problem emerges, specially when utilizing few users it is the data sparsity, caused by the lack of diversity in the movies composing the dataframes. Therefore, a way to work with this problem is to create a hybrid paring it with a Conten Based Filtering (CBF) prediction.
 
 Thus, this project aims to enhance Letterboxd functionalities by adding a recommendation system based on two main machine-learning methods: Content-based and Collaborative filtering. Additionally, it involves analyzing Letterboxed data to understand user preferences and movie trends. The recommendation system will provide personalized movie suggestions. PostgreSQL will manage the data efficiently, supporting the recommendation system, while a Power BI dashboard will complement Letterboxd for visualization.
 
 ### Methods Used
 * Recommendation system
-* Content-based Filtering
+* Content Base Filtering
 * Collaborative Filtering
 * Connection with PostgreSQL
 * Data Visualization with Power BI
@@ -56,7 +61,7 @@ As mentioned, the recommendation system was developed using the combined methods
 
 ### Collaborative Filtering
 
-The Collaborative Filtering was developed by training the SVD (Singular Value Decomposition) and SVD++ algorithm and cross validating it with the measures RMSE(Root Mean Square Error) and MAE(Mean Absolute Error), both measures to calculate the precision of the 
+The Collaborative Filtering was developed by training the SVD (Singular Value Decomposition) and SVD++ algorithm and cross validating it with the measures Root Mean Square Error (RMSE) and Mean Absolute Error(MAE), both measures to calculate the precision of the 
 decomposition.
 
 The surprise package will get the item [user_id,movie_name,rating] matrix and rearrange it to get the R matrix, in which will have the following configuration.
