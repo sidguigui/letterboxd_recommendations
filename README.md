@@ -4,7 +4,7 @@ Developed by Guilherme Monteiro as a personal study on recommendation methods, t
 #### -- Project Status: [Active]
 
 
-![](reports\figures\bi_1.png)
+![]([reports\figures\bi_1.png](https://github.com/sidguigui/letterboxd_recommendations/blob/main/reports/figures/bi_1.png))
 
 ![](reports\figures\bi_2.png)
 
