@@ -2,12 +2,7 @@
 Developed by Guilherme Monteiro as a personal study on recommendation methods, this project explores the integration of content-based and collaborative filtering techniques.
 
 #### -- Project Status: [Active]
-
-
-![Preview]([reports\figures\bi_1.png](https://github.com/sidguigui/letterboxd_recommendations/blob/main/reports/figures/bi_1.png))
 ![image](https://github.com/sidguigui/letterboxd_recommendations/assets/134338795/3ede96d4-7598-457e-ad06-0a5f91d0d815)
-
-![](reports\figures\bi_2.png)
 
 ## Project Intro/Objective
 In an era where content availability is vast and overwhelming, we are confronted with a new dilemma: how to navigate and choose from so many possibilities. Streaming services have implemented various engines to recommend the next movie or series to watch. However, the challenge remains: how do we aggregate and manage all this data effectively? Social media platforms like Letterboxd have emerged to help users track and explore each other's favorite films. Letterboxd specially, allows users to catalog and share their movie-watching experiences. However, it lacks a personalized recommendation system.
