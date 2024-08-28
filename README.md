@@ -1,6 +1,8 @@
 # Letterboxd Recommendation Project
 Developed by Guilherme Monteiro as a personal study on recommendation methods, this project explores the integration of content-based and collaborative filtering techniques.
 
+## Alterando o código que estava estruturado do Guilherme
+
 #### -- Project Status: [Active]
 ![image](https://github.com/sidguigui/letterboxd_recommendations/assets/134338795/3ede96d4-7598-457e-ad06-0a5f91d0d815)
 
