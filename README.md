@@ -23,7 +23,7 @@ Thus, this project aims to enhance Letterboxd functionalities by adding a recomm
 ### Technologies
 * Python
 * PostgreSQL
-* Power BI
+* PowerBI
 
 ## Project Description
 This project created a robust movie recommendation system for Letterboxed by utilizing a combination of content-based and collaborative filtering techniques. Here are the main aspects of the project:
